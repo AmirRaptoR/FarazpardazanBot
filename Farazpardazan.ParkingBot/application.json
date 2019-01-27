@@ -1,0 +1,9 @@
+﻿{
+  "telegram": {
+    "token": "557935695:AAHtV8V-TXzIgr2FAdbmdcO56oKADPC9J2A",
+    "admins": "71675916"
+  },
+  "database": {
+    "filename": "db.json"
+  }
+}
