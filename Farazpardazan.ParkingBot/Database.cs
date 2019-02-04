@@ -34,7 +34,7 @@ namespace Farazpardazan.ParkingBot
         {
             if (!File.Exists(Filename))
             {
-                File.Create(Filename);
+                File.Create(Filename).Dispose();
             }
 
             _data = JsonConvert.DeserializeObject<IDictionary<string, object>>(await File.ReadAllTextAsync(Filename, Encoding.UTF8)) ?? 

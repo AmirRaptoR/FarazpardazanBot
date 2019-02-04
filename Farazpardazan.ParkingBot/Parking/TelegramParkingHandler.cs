@@ -48,9 +48,13 @@ namespace Farazpardazan.ParkingBot.Parking
 
         public bool HandleMessage(ITelegramBotClient client, MessageEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(e.Message.Text))
+            {
+                return false;
+            }
             if (e.Message.Text.Contains("parking", StringComparison.InvariantCultureIgnoreCase))
             {
-                switch (e.Message.Text)
+                switch (e.Message.Text.Replace("@FarazpardazanBot", ""))
                 {
                     case "/request_parking":
                         _parkingLottery.AddVolunteer(e.Message.From.Id.ToString(),
@@ -64,29 +68,31 @@ namespace Farazpardazan.ParkingBot.Parking
                             $"شرکت کنندگان در قرعه کشی : {Environment.NewLine} {string.Join(Environment.NewLine, result.Select(x => x.Name))}");
                         break;
                     case "/parking_lottery_draw":
-                        if (!_adminIds.Contains(e.Message.From.Id ))
+                        if (!_adminIds.Contains(e.Message.From.Id))
                         {
-                            client.SendTextMessageAsync(e.Message.Chat.Id,"شما رئیس من نیستید. لطفا به رئیس خود بگویید بیاید");
+                            client.SendTextMessageAsync(e.Message.Chat.Id, "شما رئیس من نیستید. لطفا به رئیس خود بگویید بیاید");
                         }
                         else
                         {
-                            if (DateTime.Now.DayOfWeek != DayOfWeek.Friday)
+                            if (DateTime.Now.DayOfWeek != DayOfWeek.Wednesday)
                             {
-                                client.SendTextMessageAsync(e.Message.Chat.Id, "قرعه کشی فقط روزای جمعه");
+                                client.SendTextMessageAsync(e.Message.Chat.Id, "قرعه کشی فقط روزای چهارشنبه");
                             }
                             else
                             {
                                 var todayLottery = _parkingLottery.GetLotteries().Result
                                     .FirstOrDefault(x => x.Time.Date == DateTime.Today);
-                                if (todayLottery!=null)
+                                if (todayLottery != null)
                                 {
                                     client.SendTextMessageAsync(e.Message.Chat.Id, "امروز قرعه کشی یبار انجام شده");
-                                    client.SendTextMessageAsync(e.Message.Chat.Id, $"برنده هم [{todayLottery.WinnerName}](tg://user?id={todayLottery.WinnerId}) بودند");
+                                    client.SendTextMessageAsync(e.Message.Chat.Id, $"برنده هم [{todayLottery.WinnerName}](tg://user?id={todayLottery.WinnerId}) بودند"
+                                        , ParseMode.Markdown);
                                 }
                                 else
                                 {
                                     var winner = _parkingLottery.Draw().Result;
-                                    client.SendTextMessageAsync(e.Message.Chat.Id, $"تبریک به دوست عزیزمون [{winner.Name}](tg://user?id={winner.Id})\n\r ایشون بار {winner.WonCount}ام هست که برنده می‌شن");
+                                    client.SendTextMessageAsync(e.Message.Chat.Id, $"تبریک به دوست عزیزمون [{winner.Name}](tg://user?id={winner.Id})\n\r ایشون بار {winner.WonCount}ام هست که برنده می‌شن"
+                                    , ParseMode.Markdown);
                                 }
                             }
                         }
