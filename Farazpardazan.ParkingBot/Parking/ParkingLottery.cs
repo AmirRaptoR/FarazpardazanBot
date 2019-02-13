@@ -37,7 +37,7 @@ namespace Farazpardazan.ParkingBot.Parking
             }
 
             volunteer.Name = name;
-            _database.SetData(DatabaseName,db);
+            _database.SetData(DatabaseName, db);
             await _database.Save();
         }
 
@@ -60,9 +60,10 @@ namespace Farazpardazan.ParkingBot.Parking
             var participatingVolunteers = (await GetCurrentParticipatingVolunteers()).ToList();
             var random = new Random((int)DateTime.Now.Ticks);
             var winner = participatingVolunteers[random.Next(participatingVolunteers.Count)];
-            winner.WonCount++;
 
             var db = _database.GetData<ParkingLotteryData>(DatabaseName);
+            winner = db.Volunteers.First(x => x.Id == winner.Id);
+            winner.WonCount++;
             db.Lotteries.Add(new Lottery
             {
                 WonCount = winner.WonCount,
@@ -70,7 +71,7 @@ namespace Farazpardazan.ParkingBot.Parking
                 WinnerId = winner.Id,
                 WinnerName = winner.Name
             });
-            _database.SetData(DatabaseName,db);
+            _database.SetData(DatabaseName, db);
             await _database.Save();
 
             return winner;
