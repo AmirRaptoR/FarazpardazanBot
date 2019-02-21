@@ -8,5 +8,6 @@ namespace Farazpardazan.ParkingBot.Parking
         public string Id { get; set; }
         public int WonCount { get; set; }
         public DateTime AddTime { get; set; }
+        public bool IsActive { get; set; }
     }
 }

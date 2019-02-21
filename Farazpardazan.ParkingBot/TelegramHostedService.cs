@@ -27,14 +27,16 @@ namespace Farazpardazan.ParkingBot
             _logger = logger;
             var token = configuration.GetValue<string>("telegram:token");
             _botClient = new TelegramBotClient(token);
-            _botClient.OnMessage += BotClientOnOnMessage;
-            _botClient.OnCallbackQuery += BotClientOnOnCallbackQuery;
+
+
+                _botClient.OnMessage += BotClientOnOnMessage;
+                _botClient.OnCallbackQuery += BotClientOnOnCallbackQuery;
         }
 
         private void BotClientOnOnCallbackQuery(object sender, CallbackQueryEventArgs e)
         {
             _logger.LogDebug($"Callback received [from:{e.CallbackQuery.From}] : {e.CallbackQuery.Data}");
-
+        
             foreach (var telegramHandler in _telegramHandlers)
             {
                 if (telegramHandler.HandleCallback(_botClient, e))
@@ -43,9 +45,9 @@ namespace Farazpardazan.ParkingBot
                 }
             }
             _logger.LogWarning($"No handler for {e.CallbackQuery.Data}");
-
+        
         }
-
+        
         private void BotClientOnOnMessage(object sender, MessageEventArgs e)
         {
             var type = e.Message.Entities?.FirstOrDefault()?.Type ?? MessageEntityType.Unknown;

@@ -10,6 +10,7 @@ namespace Farazpardazan.ParkingBot.Parking
     {
         private const string DatabaseName = "PARKING_DATA";
         private readonly Database _database;
+        private static readonly Random Random = new Random();
 
         public ParkingLottery(Database database)
         {
@@ -18,6 +19,23 @@ namespace Farazpardazan.ParkingBot.Parking
             {
                 _database.SetData(DatabaseName, new ParkingLotteryData());
             }
+        }
+
+        public async Task RemoveVolunteer(string id)
+        {
+            var db = _database.GetData<ParkingLotteryData>(DatabaseName);
+            var volunteer = db.Volunteers.FirstOrDefault(x => x.Id == id);
+            if (volunteer == null)
+            {
+                return;
+            }
+            else
+            {
+                volunteer.IsActive = false;
+            }
+
+            _database.SetData(DatabaseName, db);
+            await _database.Save();
         }
 
         public async Task AddVolunteer(string id, string name)
@@ -34,6 +52,10 @@ namespace Farazpardazan.ParkingBot.Parking
 
                 };
                 db.Volunteers.Add(volunteer);
+            }
+            else
+            {
+                volunteer.IsActive = true;
             }
 
             volunteer.Name = name;
@@ -58,8 +80,7 @@ namespace Farazpardazan.ParkingBot.Parking
         public async Task<Volunteer> Draw()
         {
             var participatingVolunteers = (await GetCurrentParticipatingVolunteers()).ToList();
-            var random = new Random((int)DateTime.Now.Ticks);
-            var winner = participatingVolunteers[random.Next(participatingVolunteers.Count)];
+            var winner = participatingVolunteers[Random.Next(participatingVolunteers.Count)];
 
             var db = _database.GetData<ParkingLotteryData>(DatabaseName);
             winner = db.Volunteers.First(x => x.Id == winner.Id);

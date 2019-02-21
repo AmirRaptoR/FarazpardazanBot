@@ -62,26 +62,33 @@ namespace Farazpardazan.ParkingBot.Parking
                         client.SendTextMessageAsync(e.Message.Chat.Id,
                             "شما در قرعه کشی بعدی شرکت خواهید کرد");
                         break;
+                    case "/remove_request_parking":
+                        _parkingLottery.AddVolunteer(e.Message.From.Id.ToString(),
+                            e.Message.From.FirstName + " " + e.Message.From.LastName).Wait();
+                        client.SendTextMessageAsync(e.Message.Chat.Id,
+                            "شما در قرعه کشی بعدی شرکت خواهید کرد");
+                        break;
                     case "/parking_lottery":
                         var result = _parkingLottery.GetCurrentParticipatingVolunteers().Result;
                         client.SendTextMessageAsync(e.Message.Chat.Id,
-                            $"شرکت کنندگان در قرعه کشی : {Environment.NewLine} {string.Join(Environment.NewLine, result.Select(x => x.Name))}");
+                            $"شرکت کنندگان در قرعه کشی : {Environment.NewLine} {string.Join(Environment.NewLine, result.Select(x => $"[{x.Name}](tg://user?id={x.Id})"))}", ParseMode.Markdown);
                         break;
                     case "/parking_lottery_draw":
+
                         if (!_adminIds.Contains(e.Message.From.Id))
                         {
                             client.SendTextMessageAsync(e.Message.Chat.Id, "شما رئیس من نیستید. لطفا به رئیس خود بگویید بیاید");
                         }
                         else
                         {
-                            if (DateTime.Now.DayOfWeek != DayOfWeek.Wednesday)
+                            if (DateTime.Now.DayOfWeek != DayOfWeek.Wednesday && DateTime.Now.DayOfWeek != DayOfWeek.Thursday)
                             {
                                 client.SendTextMessageAsync(e.Message.Chat.Id, "قرعه کشی فقط روزای چهارشنبه");
                             }
                             else
                             {
                                 var todayLottery = _parkingLottery.GetLotteries().Result
-                                    .FirstOrDefault(x => x.Time.Date == DateTime.Today);
+                                    .FirstOrDefault(x => x.Time.Date == DateTime.Today || x.Time.Date == DateTime.Today.AddDays(-1));
                                 if (todayLottery != null)
                                 {
                                     client.SendTextMessageAsync(e.Message.Chat.Id, "امروز قرعه کشی یبار انجام شده");

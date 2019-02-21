@@ -22,12 +22,14 @@ namespace Farazpardazan.ParkingBot
 
         public TData GetData<TData>(string name)
         {
+            Reload().Wait();
             return _data.ContainsKey(name) ? JsonConvert.DeserializeObject<TData>(JsonConvert.SerializeObject(_data[name])) : default;
         }
 
         public void SetData<TData>(string name, TData data)
         {
             _data[name] = data;
+            Save().Wait();
         }
 
         public async Task Reload()
@@ -43,7 +45,10 @@ namespace Farazpardazan.ParkingBot
 
         public async Task Save()
         {
-            await File.WriteAllTextAsync(Filename, JsonConvert.SerializeObject(_data), Encoding.UTF8);
+            await File.WriteAllTextAsync(Filename, JsonConvert.SerializeObject(_data,new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented
+            }), Encoding.UTF8);
         }
     }
 }
